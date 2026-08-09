@@ -1,0 +1,15 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "xtranscoder"
+version = "0.1.0"
+description = "Read common powder XRD files and convert them to two-column data"
+requires-python = ">=3.10"
+
+[project.scripts]
+xtranscoder = "xtranscoder.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["xtranscoder*"]

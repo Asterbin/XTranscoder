@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>XTranscoder · XRD Format Converter</title><link rel="stylesheet" href="style.css"></head>
+<body><main>
+  <p class="eyebrow">X-RAY DIFFRACTION DATA</p><h1>XTranscoder</h1>
+  <p class="intro">Detect, inspect, and convert common XRD files in your browser. Your files never leave your device.</p>
+  <aside class="author-card" aria-label="Developer information"><span>DEVELOPED BY</span><a href="https://bin-cao.github.io/" target="_blank" rel="noreferrer">Dr. Bin Cao</a><small>Materials data tools and research software</small></aside>
+  <section class="card">
+    <label class="drop" for="file"><input id="file" type="file" accept=".csv,.xrdml,.raw,.dat,.xy,.txt"><span>Choose an XRD file</span><small>0.csv · 1.xrdml · 2.raw · 3.csv · 4.csv · 5.dat · 6.xy · 7.txt</small></label>
+    <p id="status" aria-live="polite">Choose a file to begin.</p>
+    <section class="preview" id="input-preview" hidden><div class="preview-title"><h2>Input data preview</h2><span id="input-meta"></span></div><div class="table-wrap"><table><thead><tr><th>2θ (°)</th><th>Intensity</th></tr></thead><tbody id="input-body"></tbody></table></div></section>
+    <div class="controls"><label>Output format<select id="format"><option value="0.csv">0.csv — two-column CSV</option><option value="1.xrdml">1.xrdml — XRDML</option><option value="3.csv">3.csv — measurement CSV</option><option value="4.csv">4.csv — header CSV</option><option value="5.dat">5.dat — DAT</option><option value="6.xy">6.xy — XY</option><option value="7.txt">7.txt — RAW4 text</option></select></label><button id="convert" disabled>Download conversion</button></div>
+    <section class="preview" id="output-preview" hidden><div class="preview-title"><h2>Output preview</h2><span id="output-meta"></span></div><pre id="output-body"></pre></section>
+  </section>
+  <p class="note">Binary 2.raw files can be read but cannot be safely written as a vendor-compatible binary format. All other listed text formats can be converted to one another.</p>
+</main><footer>Developed by <a href="https://bin-cao.github.io/" target="_blank" rel="noreferrer">Dr. Bin Cao</a></footer><script src="app.js"></script></body></html>
