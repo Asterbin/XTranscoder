@@ -39,3 +39,7 @@ from xtranscoder import read, write
 pattern = read("samples/7.txt")  # format is detected automatically
 write(pattern, "result.csv")     # 0.csv is the default
 ```
+
+## Web application
+
+Use the live XRD converter at [https://asterbin.github.io/XTranscoder/](https://asterbin.github.io/XTranscoder/). It runs entirely in the browser and provides previews for both the uploaded data and the selected export format.
