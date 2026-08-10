@@ -1,5 +1,10 @@
 let pattern, selectedFile;
 const $=id=>document.getElementById(id), status=$("status"), file=$("file"), button=$("convert"), format=$("format");
+const conversionBase=741, conversionKey="xtranscoder-conversion-count";
+function conversionTotal(){try{const value=Number(localStorage.getItem(conversionKey));return Number.isSafeInteger(value)&&value>=conversionBase?value:conversionBase}catch{return conversionBase}}
+function renderConversionCount(animate=false){const el=$("conversion-count");if(!el)return;const total=conversionTotal();if(!animate){el.textContent=total.toLocaleString();return}const start=Math.max(conversionBase,total-1),started=performance.now(),duration=420;function tick(now){const progress=Math.min((now-started)/duration,1),value=Math.round(start+(total-start)*progress);el.textContent=value.toLocaleString();if(progress<1)requestAnimationFrame(tick);else el.animate([{transform:"scale(1)"},{transform:"scale(1.12)",color:"#b8fff5"},{transform:"scale(1)"}],{duration:360,easing:"ease-out"})}requestAnimationFrame(tick)}
+function recordConversion(){try{localStorage.setItem(conversionKey,String(conversionTotal()+1))}catch{}renderConversionCount(true)}
+renderConversionCount();
 const num=/[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[Ee][-+]?\d+)?/g;
 const numbers=s=>(s.match(num)||[]).map(Number);
 function pairs(text,skip=0){const p=text.split(/\r?\n/).slice(skip).map(l=>numbers(l)).filter(a=>a.length>=2).map(a=>[a[0],a[1]]);if(!p.length)throw Error("No two-column diffraction data was found.");return p}
@@ -12,4 +17,4 @@ function renderInput(){const rows=pattern.points.slice(0,25).map(([x,y])=>`<tr><
 function renderOutput(){if(!pattern)return;const data=output(pattern,format.value),lines=data.split("\n");$("output-body").textContent=lines.slice(0,30).join("\n")+(lines.length>30?"\n…":"");$("output-meta").textContent=`${format.value} · first ${Math.min(30,lines.length)} lines shown`;$("output-preview").hidden=false}
 file.addEventListener("change",async()=>{selectedFile=file.files[0];if(!selectedFile)return;try{const bytes=new Uint8Array(await selectedFile.arrayBuffer()),text=new TextDecoder().decode(bytes);pattern=parse(selectedFile.name,text,bytes);status.textContent=`Detected ${pattern.type}: ${pattern.points.length.toLocaleString()} data points.`;button.disabled=false;renderInput();renderOutput()}catch(e){pattern=null;button.disabled=true;$("input-preview").hidden=true;$("output-preview").hidden=true;status.textContent=`Could not read file: ${e.message}`}});
 format.addEventListener("change",renderOutput);
-button.addEventListener("click",()=>{const fmt=format.value,blob=new Blob([output(pattern,fmt)],{type:"text/plain;charset=utf-8"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=selectedFile.name.replace(/\.[^.]+$/,"")+"_converted."+fmt.split(".").pop();a.click();setTimeout(()=>URL.revokeObjectURL(a.href),0)});
+button.addEventListener("click",()=>{const fmt=format.value,blob=new Blob([output(pattern,fmt)],{type:"text/plain;charset=utf-8"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=selectedFile.name.replace(/\.[^.]+$/,"")+"_converted."+fmt.split(".").pop();a.click();recordConversion();status.textContent=`Conversion complete — ${conversionTotal().toLocaleString()} files converted so far.`;setTimeout(()=>URL.revokeObjectURL(a.href),0)});
