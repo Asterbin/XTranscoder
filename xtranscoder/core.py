@@ -47,6 +47,30 @@ def _two_columns(text: str, separator: str | None = None) -> list[tuple[float, f
     return result
 
 
+def _read_scan_points(text: str) -> list[tuple[float, float]]:
+    """Read a format-3 scan table using its ``Angle`` and ``Intensity`` columns."""
+    rows = csv.reader(io.StringIO(text), skipinitialspace=True)
+    header = next((row for row in rows if any(value.strip() for value in row)), None)
+    if header is None:
+        raise ValueError("3.csv scan-points header is missing")
+    columns = {name.strip().casefold(): index for index, name in enumerate(header)}
+    if "angle" not in columns or "intensity" not in columns:
+        raise ValueError("3.csv scan-points table requires Angle and Intensity columns")
+
+    angle_column, intensity_column = columns["angle"], columns["intensity"]
+    points = []
+    for row in rows:
+        if not row or all(not value.strip() for value in row):
+            continue
+        try:
+            points.append((float(row[angle_column]), float(row[intensity_column])))
+        except (IndexError, ValueError) as exc:
+            raise ValueError("Invalid Angle or Intensity value in 3.csv scan-points table") from exc
+    if not points:
+        raise ValueError("No scan points found in 3.csv")
+    return points
+
+
 def _read_xrdml(text: str) -> list[tuple[float, float]]:
     root = ET.fromstring(text)
     counts = next((e for e in root.iter() if e.tag.endswith("counts")), None)
@@ -92,7 +116,7 @@ def read(path: str | Path) -> Pattern:
     elif fmt == "2.raw": points = _read_raw_binary(data)
     elif fmt == "3.csv":
         section = text.split("[Scan points]", 1)[-1]
-        points = _two_columns("\n".join(section.splitlines()[1:]))
+        points = _read_scan_points(section)
     elif fmt == "5.dat": points = _read_dat(text)
     elif fmt == "7.txt":
         section = text.split("[Data]", 1)[-1]
